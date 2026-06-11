@@ -9,10 +9,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -21,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import dev.brgr.outspoke.inference.EngineState
 import dev.brgr.outspoke.ui.keyboard.components.TalkButton
 import dev.brgr.outspoke.ui.theme.MyIcons
@@ -85,20 +88,50 @@ fun OverlayContent(
         animationSpec = floatSpec,
         label = "cr",
     )
+    val containerColor by animateColorAsState(
+        targetValue = if (isPill) MaterialTheme.colorScheme.surfaceContainerHigh
+                      else MaterialTheme.colorScheme.primaryContainer,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "containerColor",
+    )
+    val tonalElevation by animateDpAsState(
+        targetValue = if (isPill) 4.dp else 0.dp,
+        animationSpec = dpSpec,
+        label = "tonalElevation",
+    )
+
+    var lastPill by remember { mutableStateOf(isPill) }
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (isPill == lastPill) 1f else 0f,
+        animationSpec = spring<Float>(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "contentAlpha",
+    )
+    LaunchedEffect(isPill) {
+        if (isPill != lastPill) {
+            snapshotFlow { contentAlpha }.first { it == 0f }
+            lastPill = isPill
+        }
+    }
 
     Surface(
         shape = RoundedCornerShape(cornerRadius.dp),
-        color = if (isPill) MaterialTheme.colorScheme.surfaceContainerHigh
-                else MaterialTheme.colorScheme.primaryContainer,
-        tonalElevation = if (isPill) 4.dp else 0.dp,
+        color = containerColor,
+        tonalElevation = tonalElevation,
         modifier = Modifier.size(width, height),
     ) {
-        if (isPill) {
+        if (lastPill) {
             PillContent(
                 engineState = engineState,
                 isRecording = isRecording,
                 transcript = transcript,
                 feedback = feedback,
+                modifier = Modifier.graphicsLayer { alpha = contentAlpha },
                 onUninitialise = {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     viewModel.onUninitialise()
@@ -118,21 +151,24 @@ fun OverlayContent(
                 },
             )
         } else {
-            DotContent(onClick = {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                viewModel.onDotClicked()
-            })
+            DotContent(
+                modifier = Modifier.graphicsLayer { alpha = contentAlpha },
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    viewModel.onDotClicked()
+                },
+            )
         }
     }
 }
 
 @Composable
-private fun DotContent(onClick: () -> Unit) {
+private fun DotContent(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Box(
@@ -337,6 +373,7 @@ private fun PillContent(
     isRecording: Boolean,
     transcript: String,
     feedback: OverlayFeedback?,
+    modifier: Modifier = Modifier,
     onUninitialise: () -> Unit,
     onRecordStart: () -> Unit,
     onRecordStop: () -> Unit,
@@ -345,7 +382,7 @@ private fun PillContent(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 4.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         if (isRecording) {
