@@ -42,6 +42,7 @@ class SpeechOverlayService : AccessibilityService(), LifecycleOwner, ViewModelSt
     private lateinit var windowManager: WindowManager
     private var overlayView: ComposeView? = null
     private var focusedNode: AccessibilityNodeInfo? = null
+    private var overlayShowTime = 0L
     
     private var inferenceBinder: InferenceService.InferenceBinder? = null
     private var isBound = false
@@ -93,14 +94,23 @@ class SpeechOverlayService : AccessibilityService(), LifecycleOwner, ViewModelSt
                 return@launch
             }
 
-            if (event.eventType == AccessibilityEvent.TYPE_VIEW_FOCUSED ||
-                event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED
-            ) {
-
-                val node = event.source
-                if (node != null && (node.isEditable || node.className?.contains("EditText") == true)) {
-                    focusedNode = node
-                    showOverlay()
+            when (event.eventType) {
+                AccessibilityEvent.TYPE_VIEW_FOCUSED,
+                AccessibilityEvent.TYPE_VIEW_CLICKED -> {
+                    val node = event.source
+                    if (node != null && (node.isEditable || node.className?.contains("EditText") == true)) {
+                        focusedNode = node
+                        showOverlay()
+                    } else if (overlayView != null && viewModel.isRecording.value.not()) {
+                        hideOverlay()
+                    }
+                }
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                    if (overlayView != null && viewModel.isRecording.value.not()
+                        && System.currentTimeMillis() - overlayShowTime > 1000
+                    ) {
+                        hideOverlay()
+                    }
                 }
             }
         }
@@ -108,6 +118,7 @@ class SpeechOverlayService : AccessibilityService(), LifecycleOwner, ViewModelSt
 
     private fun showOverlay() {
         if (overlayView != null) return
+        overlayShowTime = System.currentTimeMillis()
 
         overlayView = ComposeView(this).apply {
             setViewTreeLifecycleOwner(this@SpeechOverlayService)
