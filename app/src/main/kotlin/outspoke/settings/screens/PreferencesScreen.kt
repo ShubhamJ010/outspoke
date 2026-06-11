@@ -35,6 +35,7 @@ fun PreferencesScreen(
     val suggestionBarEnabled by viewModel.suggestionBarEnabled.collectAsState()
     val suggestionBarLanguages by viewModel.suggestionBarLanguages.collectAsState()
     val downloadStates by viewModel.downloadStates.collectAsState()
+    val overlayEnabled by viewModel.overlayEnabled.collectAsState()
 
     PreferencesContent(
         triggerMode = triggerMode,
@@ -44,6 +45,7 @@ fun PreferencesScreen(
         suggestionBarEnabled = suggestionBarEnabled,
         suggestionBarLanguages = suggestionBarLanguages,
         downloadStates = downloadStates,
+        overlayEnabled = overlayEnabled,
         onTriggerModeChange = viewModel::setTriggerMode,
         onVadSensitivityChange = viewModel::setVadSensitivity,
         onPostprocessingChange = viewModel::setPostprocessingEnabled,
@@ -53,6 +55,7 @@ fun PreferencesScreen(
         onDownloadLanguage = viewModel::downloadLanguage,
         onCancelDownload = viewModel::cancelDownload,
         onDeleteLanguage = viewModel::deleteLanguage,
+        onOverlayEnabledChange = viewModel::setOverlayEnabled,
         onResetTutorial = viewModel::resetTutorial,
     )
 }
@@ -67,6 +70,7 @@ private fun PreferencesContent(
     suggestionBarEnabled: Boolean = false,
     suggestionBarLanguages: Set<String> = emptySet(),
     downloadStates: Map<String, SuggestionDownloadState> = emptyMap(),
+    overlayEnabled: Boolean = false,
     onTriggerModeChange: (String) -> Unit,
     onVadSensitivityChange: (Boolean) -> Unit,
     onPostprocessingChange: (Boolean) -> Unit,
@@ -76,6 +80,7 @@ private fun PreferencesContent(
     onDownloadLanguage: (String) -> Unit = {},
     onCancelDownload: (String) -> Unit = {},
     onDeleteLanguage: (String) -> Unit = {},
+    onOverlayEnabledChange: (Boolean) -> Unit = {},
     onResetTutorial: () -> Unit = {},
 ) {
     Column(
@@ -174,7 +179,6 @@ private fun PreferencesContent(
 
         HorizontalDivider()
 
-
         // Word Suggestion Bar — master toggle + per-language download controls.
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
@@ -248,6 +252,36 @@ private fun PreferencesContent(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+            }
+        }
+
+        HorizontalDivider()
+
+        // Speech Overlay Mode toggle
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = stringResource(R.string.pref_overlay_mode_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = stringResource(R.string.pref_overlay_mode_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = if (overlayEnabled) stringResource(R.string.state_enabled)
+                    else stringResource(R.string.state_disabled),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Switch(
+                    checked = overlayEnabled,
+                    onCheckedChange = onOverlayEnabledChange,
+                )
             }
         }
 

@@ -911,6 +911,66 @@ object MyIcons {
 
     private var _close: ImageVector? = null
 
+    val AutoFix: ImageVector
+        get() {
+            if (_autoFix != null) {
+                return _autoFix!!
+            }
+            _autoFix = materialIcon(name = "Filled.AutoFixHigh") {
+                materialPath {
+                    moveTo(7.5f, 5.6f)
+                    lineTo(10.0f, 7.0f)
+                    lineTo(8.6f, 4.5f)
+                    lineTo(10.0f, 2.0f)
+                    lineTo(7.5f, 3.4f)
+                    lineTo(5.0f, 2.0f)
+                    lineTo(6.4f, 4.5f)
+                    lineTo(5.0f, 7.0f)
+                    lineTo(7.5f, 5.6f)
+                    close()
+                    moveTo(19.5f, 15.4f)
+                    lineTo(17.0f, 14.0f)
+                    lineToRelative(1.4f, 2.5f)
+                    lineTo(17.0f, 19.0f)
+                    lineToRelative(2.5f, -1.4f)
+                    lineToRelative(2.5f, 1.4f)
+                    lineToRelative(-1.4f, -2.5f)
+                    lineTo(22.0f, 14.0f)
+                    lineTo(19.5f, 15.4f)
+                    close()
+                    moveTo(22.0f, 2.0f)
+                    lineToRelative(-2.5f, 1.4f)
+                    lineTo(17.0f, 2.0f)
+                    lineToRelative(1.4f, 2.5f)
+                    lineTo(17.0f, 7.0f)
+                    lineToRelative(2.5f, -1.4f)
+                    lineTo(22.0f, 7.0f)
+                    lineToRelative(-1.4f, -2.5f)
+                    lineTo(22.0f, 2.0f)
+                    close()
+                    moveTo(14.37f, 7.29f)
+                    curveToRelative(-0.39f, -0.39f, -1.02f, -0.39f, -1.41f, 0.0f)
+                    lineTo(1.29f, 18.96f)
+                    curveToRelative(-0.39f, 0.39f, -0.39f, 1.02f, 0.0f, 1.41f)
+                    lineToRelative(2.34f, 2.34f)
+                    curveToRelative(0.39f, 0.39f, 1.02f, 0.39f, 1.41f, 0.0f)
+                    lineTo(16.71f, 11.04f)
+                    curveToRelative(0.39f, -0.39f, 0.39f, -1.02f, 0.0f, -1.41f)
+                    lineToRelative(-2.34f, -2.34f)
+                    close()
+                    moveTo(14.59f, 10.59f)
+                    lineTo(13.41f, 11.77f)
+                    lineToRelative(-1.18f, -1.18f)
+                    lineToRelative(1.18f, -1.18f)
+                    lineToRelative(1.18f, 1.18f)
+                    close()
+                }
+            }
+            return _autoFix!!
+        }
+
+    private var _autoFix: ImageVector? = null
+
 
     inline fun materialIcon(
         name: String,

@@ -16,8 +16,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -64,6 +66,7 @@ fun TalkButton(
 ) {
     val effectiveListening = isListening && enabled
     val isContinuousActive = isContinuous && effectiveListening
+    val haptic = LocalHapticFeedback.current
 
     // True while the user's finger is down in HOLD mode (drives the lock hint visibility).
     var isHolding by remember { mutableStateOf(false) }
@@ -156,6 +159,7 @@ fun TalkButton(
                                 //  TAP_TOGGLE mode: tap once to start, tap again to stop 
                                 awaitFirstDown(requireUnconsumed = false)
                                 waitForUpOrCancellation()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 if (currentIsListening) {
                                     currentOnRecordStop()
                                 } else {
@@ -168,10 +172,12 @@ fun TalkButton(
                                 if (currentIsContinuous) {
                                     // Continuous mode: single tap to stop
                                     waitForUpOrCancellation()
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                     dragProgress = 0f
                                     currentOnRecordStop()
                                 } else {
                                     isHolding = true
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     currentOnRecordStart()
                                     var locked = false
                                     val startY = down.position.y
@@ -182,6 +188,7 @@ fun TalkButton(
 
                                         if (!change.pressed) {
                                             // Released - stop only if not locked
+                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                             dragProgress = 0f
                                             isHolding = false
                                             if (!locked) currentOnRecordStop()
@@ -194,6 +201,7 @@ fun TalkButton(
 
                                         if (!locked && upDelta > thresholdPx) {
                                             locked = true
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             dragProgress = 0f
                                             isHolding = false
                                             currentOnContinuousMode()

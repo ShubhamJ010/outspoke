@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
             android:allowBackup="true"
@@ -69,6 +70,18 @@
             <meta-data
                     android:name="android.app.foregroundServiceType.dataSync.justification"
                     android:value="Required for downloading speech recognition model files in the background."/>
+        </service>
+
+        <service
+                android:name=".ime.overlay.SpeechOverlayService"
+                android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.accessibilityservice"
+                    android:resource="@xml/accessibility_service_config"/>
         </service>
 
     </application>

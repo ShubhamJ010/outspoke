@@ -81,6 +81,16 @@ class PreferencesViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch { prefs.setSuggestionBarLanguages(tags) }
     }
 
+    val overlayEnabled: StateFlow<Boolean> = prefs.overlayEnabled.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        false
+    )
+
+    fun setOverlayEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.setOverlayEnabled(enabled) }
+    }
+
     // ── Per-language download state ───────────────────────────────────────────
 
     /**

@@ -48,6 +48,10 @@
     <string name="home_ime_not_enabled">Keyboard not enabled</string>
     <string name="home_ime_enabled_subtitle">Outspoke is in the keyboard list.</string>
     <string name="home_ime_not_enabled_subtitle">Add Outspoke in system keyboard settings.</string>
+    <string name="home_overlay_enabled">Speech overlay active</string>
+    <string name="home_overlay_not_enabled">Speech overlay inactive</string>
+    <string name="home_overlay_enabled_subtitle">Overlay appears when text fields are focused.</string>
+    <string name="home_overlay_not_enabled_subtitle">Enable accessibility and overlay permissions.</string>
     <string name="home_mic_granted">Microphone access granted</string>
     <string name="home_mic_required">Microphone permission required</string>
     <string name="home_mic_granted_subtitle">Audio is processed entirely on-device.</string>
@@ -82,6 +86,11 @@
     <string name="pref_tutorial_subtitle">Replay the step-by-step button guide the next time you open the keyboard.
     </string>
     <string name="pref_tutorial_reset">Show tutorial again</string>
+
+    <string name="pref_overlay_mode_title">Overlay Mode</string>
+    <string name="pref_overlay_mode_subtitle">Show a floating speech-to-text button in any app when a text field is
+        focused. Requires Accessibility and Overlay permissions.
+    </string>
 
     <!-- Word Suggestion Bar -->
     <string name="pref_suggestion_bar_title">Word Suggestions</string>

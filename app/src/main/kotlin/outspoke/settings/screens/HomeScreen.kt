@@ -53,6 +53,7 @@ fun HomeScreen(
     var isImeEnabled by remember { mutableStateOf(false) }
     var hasMicPermission by remember { mutableStateOf(false) }
     var isModelReady by remember { mutableStateOf(false) }
+    var isOverlayEnabled by remember { mutableStateOf(false) }
 
     val micPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -70,6 +71,7 @@ fun HomeScreen(
                 isImeEnabled = isOutspokeImeEnabled(context)
                 hasMicPermission = PermissionHelper.hasRecordPermission(context)
                 isModelReady = ModelRegistry.all.any { ModelStorageManager.isModelReady(context, it) }
+                isOverlayEnabled = isAccessibilityServiceEnabled(context) && Settings.canDrawOverlays(context)
             }
         }
         lifecycle.addObserver(observer)
@@ -80,8 +82,16 @@ fun HomeScreen(
         isImeEnabled = isImeEnabled,
         hasMicPermission = hasMicPermission,
         isModelReady = isModelReady,
+        isOverlayEnabled = isOverlayEnabled,
         onOpenImeSettings = { context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)) },
         onRequestMicPermission = { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+        onOpenOverlaySettings = {
+            if (!Settings.canDrawOverlays(context)) {
+                context.startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+            } else if (!isAccessibilityServiceEnabled(context)) {
+                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+        },
         onNavigateToModel = onNavigateToModel,
         onNavigateToPreferences = onNavigateToPreferences,
     )
@@ -92,8 +102,10 @@ private fun HomeScreenContent(
     isImeEnabled: Boolean,
     hasMicPermission: Boolean,
     isModelReady: Boolean,
+    isOverlayEnabled: Boolean,
     onOpenImeSettings: () -> Unit,
     onRequestMicPermission: () -> Unit,
+    onOpenOverlaySettings: () -> Unit,
     onNavigateToModel: () -> Unit,
     onNavigateToPreferences: () -> Unit,
 ) {
@@ -136,7 +148,20 @@ private fun HomeScreenContent(
             action = if (!hasMicPermission) onRequestMicPermission else null,
         )
 
-        // 3. Model downloaded - always show an action so the model screen stays reachable
+        // 3. Overlay enabled (optional but recommended for non-IME users)
+        StatusRow(
+            icon = if (isOverlayEnabled) MyIcons.AutoFix else MyIcons.Warning,
+            iconTint = if (isOverlayEnabled) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            title = if (isOverlayEnabled) stringResource(R.string.home_overlay_enabled)
+            else stringResource(R.string.home_overlay_not_enabled),
+            subtitle = if (isOverlayEnabled) stringResource(R.string.home_overlay_enabled_subtitle)
+            else stringResource(R.string.home_overlay_not_enabled_subtitle),
+            actionLabel = stringResource(R.string.action_open_settings),
+            action = if (!isOverlayEnabled) onOpenOverlaySettings else null,
+        )
+
+        // 4. Model downloaded - always show an action so the model screen stays reachable
         StatusRow(
             icon = if (isModelReady) MyIcons.CheckCircle else MyIcons.CloudDownload,
             iconTint = if (isModelReady) MaterialTheme.colorScheme.primary
@@ -179,6 +204,16 @@ private fun HomeScreenContent(
 private fun isOutspokeImeEnabled(context: Context): Boolean {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     return imm.enabledInputMethodList.any { it.packageName == context.packageName }
+}
+
+/** Returns `true` if the Outspoke Speech Overlay accessibility service is enabled. */
+private fun isAccessibilityServiceEnabled(context: Context): Boolean {
+    val expectedComponentName = "${context.packageName}/dev.brgr.outspoke.ime.overlay.SpeechOverlayService"
+    val enabledServices = Settings.Secure.getString(
+        context.contentResolver,
+        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+    ) ?: ""
+    return enabledServices.split(':').any { it.equals(expectedComponentName, ignoreCase = true) }
 }
 
 @Composable
@@ -226,8 +261,10 @@ private fun HomeScreenNothingSetupPreview() {
             isImeEnabled = false,
             hasMicPermission = false,
             isModelReady = false,
+            isOverlayEnabled = false,
             onOpenImeSettings = {},
             onRequestMicPermission = {},
+            onOpenOverlaySettings = {},
             onNavigateToModel = {},
             onNavigateToPreferences = {},
         )
@@ -242,8 +279,10 @@ private fun HomeScreenAllReadyPreview() {
             isImeEnabled = true,
             hasMicPermission = true,
             isModelReady = true,
+            isOverlayEnabled = true,
             onOpenImeSettings = {},
             onRequestMicPermission = {},
+            onOpenOverlaySettings = {},
             onNavigateToModel = {},
             onNavigateToPreferences = {},
         )
@@ -258,8 +297,10 @@ private fun HomeScreenPartialSetupPreview() {
             isImeEnabled = true,
             hasMicPermission = false,
             isModelReady = false,
+            isOverlayEnabled = false,
             onOpenImeSettings = {},
             onRequestMicPermission = {},
+            onOpenOverlaySettings = {},
             onNavigateToModel = {},
             onNavigateToPreferences = {},
         )

@@ -48,6 +48,10 @@
     <string name="home_ime_not_enabled">Tastatur nicht aktiviert</string>
     <string name="home_ime_enabled_subtitle">Outspoke ist in der Tastaturliste.</string>
     <string name="home_ime_not_enabled_subtitle">Outspoke in den Systemtastatureinstellungen hinzufügen.</string>
+    <string name="home_overlay_enabled">Sprachoverlay aktiv</string>
+    <string name="home_overlay_not_enabled">Sprachoverlay inaktiv</string>
+    <string name="home_overlay_enabled_subtitle">Overlay erscheint, wenn Textfelder fokussiert werden.</string>
+    <string name="home_overlay_not_enabled_subtitle">Bedienungshilfen- und Overlay-Berechtigungen aktivieren.</string>
     <string name="home_mic_granted">Mikrofonzugriff erteilt</string>
     <string name="home_mic_required">Mikrofonberechtigung erforderlich</string>
     <string name="home_mic_granted_subtitle">Audio wird vollständig auf dem Gerät verarbeitet.</string>
@@ -86,6 +90,11 @@
         erneut an.
     </string>
     <string name="pref_tutorial_reset">Tutorial erneut anzeigen</string>
+
+    <string name="pref_overlay_mode_title">Overlay-Modus</string>
+    <string name="pref_overlay_mode_subtitle">Zeigt eine schwebende Sprachtranskriptions-Taste in jeder App an, wenn ein
+        Textfeld fokussiert ist. Erfordert Bedienungshilfen- und Overlay-Berechtigungen.
+    </string>
 
     <!-- Model screen -->
     <string name="model_screen_title">Spracherkennungsmodelle</string>

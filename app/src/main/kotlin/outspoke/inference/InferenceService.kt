@@ -68,6 +68,13 @@ class InferenceService : LifecycleService() {
         /** Returns the active [InferenceRepository], or `null` while the engine is loading. */
         fun getRepository(): InferenceRepository? = currentRepository
         fun getEngineState(): StateFlow<EngineState> = engineState
+
+        /** Unloads the current engine from RAM. */
+        fun unload() {
+            lifecycleScope.launch {
+                this@InferenceService.unload()
+            }
+        }
     }
 
     private val binder = InferenceBinder()
@@ -132,6 +139,20 @@ class InferenceService : LifecycleService() {
         grammarCorrector.close()
         logMemoryUsage()
         Log.d(TAG, "Service destroyed - engine closed")
+    }
+
+    /**
+     * Closes any existing engine and sets state to Unloaded.
+     */
+    private suspend fun unload() {
+        engineLoadMutex.withLock {
+            currentEngine?.close()
+            currentEngine = null
+            currentRepository = null
+            _engineState.value = EngineState.Unloaded
+            updateNotification(getString(R.string.notif_model_not_downloaded))
+            Log.d(TAG, "Engine unloaded manually via binder")
+        }
     }
 
     /**

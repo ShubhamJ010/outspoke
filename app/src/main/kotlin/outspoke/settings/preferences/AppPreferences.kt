@@ -218,4 +218,17 @@ class AppPreferences(private val context: Context) {
     suspend fun setSuggestionBarDismissed(dismissed: Boolean) {
         context.dataStore.edit { prefs -> prefs[keySuggestionBarDismissed] = dismissed }
     }
+
+    private val keyOverlayEnabled = booleanPreferencesKey("overlay_enabled")
+
+    /**
+     * `true` if the user has opted into the Speech Overlay feature.
+     */
+    val overlayEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[keyOverlayEnabled] ?: false
+    }
+
+    suspend fun setOverlayEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs -> prefs[keyOverlayEnabled] = enabled }
+    }
 }
